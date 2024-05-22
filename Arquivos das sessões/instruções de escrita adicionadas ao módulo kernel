@@ -1,0 +1,72 @@
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/interrupt.h>
+#include <asm/io.h>
+#include "address_map_arm.h"
+
+
+//CONSTANTES
+#define DATA_A  0x80
+#define DATA_B  0x70
+#define START 0xc0
+
+
+
+
+ void * LW_virtual; // Lightweight bridge base address
+ volatile int *DATA_A_PTR, *DATA_B_PTR, *START_PTR; // virtual addresses
+
+void montarInstrucaoWBR(volatile int opcode, volatile int registrador, volatile int R, volatile int G, volatile int B) {
+    *START_PTR = 0;
+    *DATA_A_PTR =((volatile int)opcode << 0) |((volatile int)registrador << 4);
+    *DATA_B_PTR =((volatile int)R << 0) | ((volatile int)G << 3) | ((volatile int)B << 6);
+    *START_PTR = 1;
+    *START_PTR = 0;
+    
+}
+
+
+
+
+void montarInstrucaoWBR_2(volatile int opcode, volatile int registrador, volatile int offset, volatile int Cord_y, volatile int Cord_x, volatile int sp) {
+    *START_PTR = 0;
+    *DATA_A_PTR =((volatile int)opcode << 0) |((volatile int)registrador << 4);
+    *DATA_B_PTR =((volatile int)offset << 0) | ((volatile int)Cord_y << 9) | ((volatile int)Cord_x << 19) | ((volatile int)sp << 29);
+    *START_PTR = 1;
+    *START_PTR = 0;
+    
+}
+
+
+
+
+
+ 
+ static int __init init_kernelteste(void) {
+    // generate a virtual address for the FPGA lightweight bridge
+    LW_virtual = ioremap_nocache (LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
+
+
+
+   // Set virtual address pointer to I/O port
+   DATA_A_PTR = (unsigned int *) (LW_virtual + DATA_A);
+   DATA_B_PTR = (unsigned int *) (LW_virtual + DATA_B);   
+   START_PTR = (unsigned int *) (LW_virtual + START);  
+   
+   montarInstrucaoWBR(0b0000, 0b00000, 0b111, 0b000, 0b000);
+   
+   montarInstrucaoWBR_2(0b0000, 0b00001, 0b000000001, 0b0000000010, 0b0000000010, 0b1);
+   
+
+
+   return 0;
+ }
+
+ 
+ static void __exit exit_kernelteste(void) {
+   *START_PTR = 0;
+    iounmap (LW_virtual);
+}
+module_init(init_kernelteste);
+module_exit(exit_kernelteste);
