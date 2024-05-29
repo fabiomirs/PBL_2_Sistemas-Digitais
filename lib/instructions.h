@@ -57,4 +57,6 @@ void assembleInstructionWSM(volatile int *DATA_A_PTR, volatile int *DATA_B_PTR,
 void assembleInstructionDP(volatile int *DATA_A_PTR, volatile int *DATA_B_PTR,
     uint8_t ref_point_X, uint8_t ref_point_Y, uint8_t address, Polygon polygon);
 
+void mask32BitsTo4Chars(uint32_t value, char chars[4]);
+
 #endif
