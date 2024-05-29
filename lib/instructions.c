@@ -34,6 +34,13 @@ void assembleInstructionDP(volatile int *DATA_A_PTR, volatile int *DATA_B_PTR,
         ((uint32_t)polygon.R << 22)|((uint32_t)polygon.G << 25)|((uint32_t)polygon.B << 28)|((uint32_t)polygon.shape << 31);
 }
 
+void mask32BitsTo4Chars(uint32_t value, char chars[4]) {
+    bytes[0] = (value >> 24) & 0xFF;
+    bytes[1] = (value >> 16) & 0xFF;
+    bytes[2] = (value >> 8) & 0xFF;
+    bytes[3] = value & 0xFF;
+}
+
 
 // static int __init init_kernelteste(void) {
 //     // generate a virtual address for the FPGA lightweight bridge
