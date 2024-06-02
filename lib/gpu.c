@@ -15,7 +15,10 @@ int open_physical (int);
 void close_physical (int);
 
 GraphicElement screenElements[32] = {};
-unsigned char lastRegister = 0;
+unsigned char availableRegisters[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+
+unsigned char lastRegister = 1;
 
 void printBits(unsigned char *palavra) {
     for (int i = 7; i >= 0; i--) {
@@ -31,7 +34,6 @@ int setPixelOnSpriteMemory(unsigned int mem_address, unsigned char R,
     unsigned char G, unsigned char B) {
 
     unsigned char *palavra = assembleInstructionWSM(mem_address, R, G, B);
-    printBits(palavra);
 
 
     int fd;
@@ -40,23 +42,39 @@ int setPixelOnSpriteMemory(unsigned int mem_address, unsigned char R,
 
     ssize_t buffer =  write(fd,palavra,sizeof(palavra));
 
-
-   printf("\n");
-
-
-   unsigned char lendo[8];
-   ssize_t bytesRead=read(fd,lendo,sizeof(lendo));
+    unsigned char lendo[8];
+    ssize_t bytesRead=read(fd,lendo,sizeof(lendo));
     if (bytesRead<0) {
-        printf("falhou");
+        printf("falhou na escrita do pixel.");
         close_physical (fd);
         return bytesRead;
-    } else {
-        printBits(lendo);
     }
 
     close_physical (fd);
     return 0;   
 }
+
+int editBlockOnBackgroundMemory(unsigned int block, unsigned char R, 
+                                unsigned char G, unsigned char B) {
+    unsigned char *palavra = assembleInstructionWBM(block, R, G, B);
+
+    int fd;
+    if ((fd = open_physical (fd)) == -1)
+        return (-1);
+
+    ssize_t buffer =  write(fd,palavra,sizeof(palavra));
+
+    unsigned char lendo[8];
+    ssize_t bytesRead=read(fd,lendo,sizeof(lendo));
+    if (bytesRead<0) {
+        printf("falhou na escrita de blocos de background.");
+        close_physical (fd);
+        return bytesRead;
+    }
+
+    close_physical (fd);
+    return 0;   
+} 
 
 
 Sprite* setSpriteOnScreen(unsigned char variation, unsigned int x, unsigned int y) {
@@ -88,6 +106,10 @@ Sprite* setSpriteOnScreen(unsigned char variation, unsigned int x, unsigned int 
     sprite->variation = variation;
     sprite->rel_x = x;
     sprite->rel_y = y;
+
+    GraphicElement ge = { SPRITE, .data = sprite };
+
+    screenElements[sprite->address] = ge;
 
     return sprite;   
 }
@@ -131,11 +153,16 @@ Background* setBackground(unsigned char B, unsigned char G, unsigned char R) {
     }
 
     close_physical (fd);
+
     Background *bg = (Background *)malloc(sizeof(Background));
     bg->address = 0;
     bg->R = R;
     bg->G = G;
     bg->B = B;
+
+    GraphicElement ge = {BACKGROUND, .data = bg };
+    screenElements[0] = ge;
+
     return bg;   
 }
 
@@ -156,7 +183,7 @@ int setPolygon(unsigned char rel_x, unsigned char rel_y, Polygon* polygon) {
     if ((fd = open_physical (fd)) == -1)
         return (-1);
 
-    ssize_t buffer =  write(fd,palavra,sizeof(palavra));
+    ssize_t buffer = write(fd,palavra,sizeof(palavra));
 
     unsigned char lendo[8];
     ssize_t bytesRead=read(fd,lendo,sizeof(lendo));
@@ -171,7 +198,97 @@ int setPolygon(unsigned char rel_x, unsigned char rel_y, Polygon* polygon) {
     polygon->address = lastRegister;
 
     close_physical (fd);
+
+    GraphicElement ge = { POLYGON, .data = polygon };
+
+    screenElements[lastRegister] = ge;
+
     return 0;   
+}
+
+int updateSprite(Sprite* sprite){
+    unsigned char *palavra;
+        palavra = assembleInstructionWBR_2(sprite->address,
+    sprite->variation, sprite->rel_x, sprite->rel_y, sprite->sp);
+
+    int fd;
+    if ((fd = open_physical (fd)) == -1)
+        return -1;
+
+    ssize_t buffer = write(fd,palavra,sizeof(palavra));
+
+    unsigned char lendo[8];
+    ssize_t bytesRead = read(fd,lendo,sizeof(lendo));
+    if (bytesRead<0){
+        printf("instrução de atualização de sprite falhou");
+        close_physical (fd);
+        return -1;
+    }
+
+    close_physical (fd);
+
+    GraphicElement ge = { SPRITE, .data = sprite };
+
+    screenElements[sprite->address] = ge;
+
+    return 0;
+}
+
+int updateBackground(Background* background){
+    Background* ret = setBackground(background->R, background->G, background->B);
+    if(ret == NULL) return -1;
+    background = ret;
+    return 0;
+}
+
+int updatePolygon(Polygon* polygon){
+    unsigned char *palavra;
+    if (lastRegister <= 31)
+        palavra = assembleInstructionDP(polygon->rel_x, polygon->rel_y, polygon->address, *polygon);
+    else {
+        printf("Número máximo de registradores utilizados atingido.");
+        return -1;
+    }
+    
+    int fd;
+    if ((fd = open_physical (fd)) == -1)
+        return (-1);
+
+    ssize_t buffer = write(fd,palavra,sizeof(palavra));
+
+    unsigned char lendo[8];
+    ssize_t bytesRead=read(fd,lendo,sizeof(lendo));
+    if (bytesRead<0) {  
+        printf("erro na escrita de um polígono");
+        close_physical(fd);
+        return bytesRead;
+    }
+
+    close_physical (fd);
+
+    GraphicElement ge = { POLYGON, .data = polygon };
+
+    screenElements[polygon->address] = ge;
+
+    return 0;   
+}
+
+int updateGraphicElement(GraphicElement ge) {
+    switch(ge.type) {
+        case SPRITE:
+            updateSprite(ge.data.s);
+            break;
+        case BACKGROUND:
+            updateBackground(ge.data.b);
+            break;
+        case POLYGON:
+            updatePolygon(ge.data.p);
+            break;
+        default:
+            printf("Elemento não corresponde a nenhum GraphicElementType.");
+            return -1;
+    }
+    return 0;
 }
 
 int main() {
