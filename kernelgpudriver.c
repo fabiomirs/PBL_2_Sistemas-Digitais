@@ -160,7 +160,7 @@ static const struct file_operations fops = {
 };
    
 
-static int __init init_kernelteste(void) {
+static int __init init_kernelgpudriver(void) {
 
 
     int result;
@@ -198,7 +198,7 @@ static int __init init_kernelteste(void) {
 }
 
 
-static void __exit exit_kernelteste(void) {
+static void __exit exit_kernelgpudriver(void) {
    *START_PTR = 0;
     iounmap (LW_virtual);
     cdev_del(&drvled_data.cdev);
@@ -207,8 +207,8 @@ static void __exit exit_kernelteste(void) {
 }
 
 
-module_init(init_kernelteste);
-module_exit(exit_kernelteste);
+module_init(init_kernelgpudriver);
+module_exit(exit_kernelgpudriver);
 
 
 
