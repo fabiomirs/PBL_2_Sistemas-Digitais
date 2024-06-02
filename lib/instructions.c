@@ -5,6 +5,7 @@
 
 #define WBR_OPCODE 0b0000
 #define WSM_OPCODE 0b0001
+#define WBM_OPCODE 0b0010
 #define DP_OPCODE  0b0011
 
 unsigned char *assembleInstructionWBR(
@@ -80,6 +81,34 @@ unsigned char* assembleInstructionWBR_2(
    
     return palavra;
 }
+
+
+unsigned char* assembleInstructionWBM(
+    unsigned int address, unsigned char R, unsigned char G, unsigned char B){
+
+
+    static unsigned char palavra[8] = {0};
+
+
+    //no primeiro byte, coloque os 4 bits menos significativos do byte que terá o opcode
+    palavra[0] = (WBM_OPCODE & 0xF);
+    
+   
+    palavra[0] |= (address & 0xF) << 4;
+    
+    palavra[1] =  (address & 0xFF0) >> 4;
+
+    palavra[4] |= (R & 0x07); 
+
+    palavra[4] |= (G & 0x07) << 3; 
+
+    palavra[4] |= (B & 0x03) << 6; 
+
+    palavra[5] |= (B & 0x04) >> 2;  
+   
+    return palavra;
+}
+
 
 unsigned char* assembleInstructionWSM(
     unsigned int address, unsigned char R, unsigned char G, unsigned char B){

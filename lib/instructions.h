@@ -14,6 +14,8 @@ unsigned char* assembleInstructionWBR_2(
 unsigned char *assembleInstructionWSM(
     unsigned int address, unsigned char R, unsigned char G, unsigned char B);
 
+unsigned char* assembleInstructionWBM(
+    unsigned int address, unsigned char R, unsigned char G, unsigned char B);
 
 unsigned char *assembleInstructionDP(
     unsigned int ref_point_X, unsigned int ref_point_Y, unsigned char address, Polygon polygon);

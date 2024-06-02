@@ -54,14 +54,15 @@ typedef struct {
   unsigned char variation;
   unsigned char rel_x;
   unsigned char rel_y;
+  unsigned char sp;
 } Sprite;
 
 typedef struct {
   GraphicElementType type;
   union {
-    Polygon;
-    Sprite;
-    Background;
+    Polygon* p;
+    Background* b;
+    Sprite* s;
   } data;
 } GraphicElement;
 
