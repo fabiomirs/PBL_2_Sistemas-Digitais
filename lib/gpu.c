@@ -18,7 +18,7 @@ GraphicElement screenElements[32] = {};
 unsigned char availableRegisters[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
 
-unsigned char lastRegister = 1;
+unsigned char lastRegister = 0;
 
 void printBits(unsigned char *palavra) {
     for (int i = 7; i >= 0; i--) {
@@ -79,13 +79,19 @@ int editBlockOnBackgroundMemory(unsigned int block, unsigned char R,
 
 Sprite* setSpriteOnScreen(unsigned char variation, unsigned int x, unsigned int y) {
     unsigned char *palavra;
-    if (lastRegister <= 31)
-        palavra = assembleInstructionWBR_2(++lastRegister, variation, x, y, 1);
+    if (lastRegister <= 31) {
+        lastRegister++;
+        printf("\n valor de last: %d\n", lastRegister);
+        palavra = assembleInstructionWBR_2(lastRegister, variation, x, y, 1);
+    }
     else {
         printf("Número máximo de registradores utilizados atingido.");
         return NULL;
     }
+    printBits(palavra);
 
+
+    // printf("///////////////////////////////////////////////////////\n");
     int fd;
     if ((fd = open_physical (fd)) == -1)
         return NULL;
@@ -99,15 +105,16 @@ Sprite* setSpriteOnScreen(unsigned char variation, unsigned int x, unsigned int 
         close_physical (fd);
         return NULL;
     }
+    // printBits(lendo);
 
     close_physical (fd);
     Sprite* sprite = (Sprite *)malloc(sizeof(Sprite));
-    sprite->address == lastRegister;
+    sprite->address = lastRegister;
     sprite->variation = variation;
     sprite->rel_x = x;
     sprite->rel_y = y;
 
-    GraphicElement ge = { SPRITE, .data = sprite };
+    GraphicElement ge = { SPRITE, .data.s = sprite };
 
     screenElements[sprite->address] = ge;
 
@@ -160,14 +167,15 @@ Background* setBackground(unsigned char B, unsigned char G, unsigned char R) {
     bg->G = G;
     bg->B = B;
 
-    GraphicElement ge = {BACKGROUND, .data = bg };
+    GraphicElement ge = {BACKGROUND, .data.b = bg };
     screenElements[0] = ge;
 
     return bg;   
 }
 
 int eraseBackground() {
-    return (setBackground(0, 0, 0) != NULL);
+    setBackground(0b000, 0b000, 0b000);
+    return 0;
 }
 
 int setPolygon(unsigned char rel_x, unsigned char rel_y, Polygon* polygon) {
@@ -199,7 +207,7 @@ int setPolygon(unsigned char rel_x, unsigned char rel_y, Polygon* polygon) {
 
     close_physical (fd);
 
-    GraphicElement ge = { POLYGON, .data = polygon };
+    GraphicElement ge = { POLYGON, .data.p = polygon };
 
     screenElements[lastRegister] = ge;
 
@@ -227,7 +235,7 @@ int updateSprite(Sprite* sprite){
 
     close_physical (fd);
 
-    GraphicElement ge = { SPRITE, .data = sprite };
+    GraphicElement ge = { SPRITE, .data.s = sprite };
 
     screenElements[sprite->address] = ge;
 
@@ -243,12 +251,7 @@ int updateBackground(Background* background){
 
 int updatePolygon(Polygon* polygon){
     unsigned char *palavra;
-    if (lastRegister <= 31)
-        palavra = assembleInstructionDP(polygon->rel_x, polygon->rel_y, polygon->address, *polygon);
-    else {
-        printf("Número máximo de registradores utilizados atingido.");
-        return -1;
-    }
+    palavra = assembleInstructionDP(polygon->rel_x, polygon->rel_y, polygon->address, *polygon);
     
     int fd;
     if ((fd = open_physical (fd)) == -1)
@@ -292,7 +295,18 @@ int updateGraphicElement(GraphicElement ge) {
 }
 
 int main() {
-    
+    Background* bg = setBackground(0b111, 0b111, 0b111);
+    Sprite* sp = setSpriteOnScreen(1, 0b10, 0b110);
+    Sprite* sp2 = setSpriteOnScreen(0, 0, 0);
+    sp2 = setSpriteOnScreen(0, 0, 0);
+    sp2 = setSpriteOnScreen(0, 0, 0);
+    // Polygon* p = (Polygon*) malloc(sizeof(Polygon));
+    // printf("%d", lastRegister);
+    // p->size = s30x30;
+    // p->R = 0b111;
+    // p->G = 0b111;
+    // p->B = 0b111;
+    // p->shape = TRIANGLE;
     return 0;
 }
 

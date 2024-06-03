@@ -16,7 +16,7 @@ unsigned char *assembleInstructionWBR(
 
 
     //no primeiro byte, coloque os 4 bits menos significativos do byte que terá o opcode
-    palavra[0] |= (WBR_OPCODE & 0xF);
+    palavra[0] = (WBR_OPCODE & 0xF);
     
     //no primeiro byte, coloque 4 dos 5 bits relativos ao registrador
     palavra[0] |= (reg & 0xF) << 4;
@@ -57,7 +57,7 @@ unsigned char* assembleInstructionWBR_2(
 
 
     //no primeiro byte, coloque os 4 bits menos significativos do byte que terá o opcode
-    palavra[0] |= (WBR_OPCODE & 0xF);
+    palavra[0] = (WBR_OPCODE & 0xF);
     
     //no primeiro byte, coloque 4 dos 5 bits relativos ao registrador
     palavra[0] |= (reg & 0xF) << 4;
@@ -146,7 +146,7 @@ unsigned char* assembleInstructionDP (
     static unsigned char palavra[8] = {0};
 
     //no primeiro byte, coloque os 4 bits menos significativos do byte que terá o opcode
-    palavra[0] |= (DP_OPCODE & 0xF);
+    palavra[0] = (DP_OPCODE & 0xF);
     
     //no primeiro byte, coloque 4 dos 5 bits relativos ao registrador
     palavra[0] |= (address & 0xF) << 4;
