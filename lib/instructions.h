@@ -5,7 +5,7 @@
 
 
 unsigned char *assembleInstructionWBR(
-    unsigned char reg, unsigned char R, unsigned char G, unsigned char B);
+    unsigned char R, unsigned char G, unsigned char B);
 
 unsigned char* assembleInstructionWBR_2(
     unsigned char reg, unsigned int offset,
@@ -18,6 +18,7 @@ unsigned char* assembleInstructionWBM(
     unsigned int address, unsigned char R, unsigned char G, unsigned char B);
 
 unsigned char *assembleInstructionDP(
-    unsigned int ref_point_X, unsigned int ref_point_Y, unsigned char address, Polygon polygon);
+    unsigned int ref_point_X, unsigned int ref_point_Y, unsigned char address,
+    unsigned char size, unsigned char R, unsigned char G, unsigned char B, unsigned char shape);
 
 #endif

@@ -31,19 +31,44 @@ typedef enum size { // tamanhos disponíveis para os polígonos da gpu
   s160x160 = 0b1111
 } Size;
 
+typedef enum {
+  ENEMY_1,
+  ENEMY_2,
+  MEDAL,
+  BOMB,
+  TREE,
+  PLANE_UP,
+  PLANE_RIGHT,
+  PLANE_DOWN,
+  PLANE_LEFT,
+  COIN,
+  DIAMOND,
+  BEAM_VERTICAL,
+  BEAM_DIAG_RIGHT,
+  BEAM_HORIZONTAL,
+  BEAM_DIAG_LEFT,
+  HEART,
+  LOG,
+  F1_CAR_1,
+  F1_CAR_2,
+  F1_CAR_3,
+  F1_CAR_4,
+  ALIEN_1,
+  ALIEN_2,
+  ROCK,
+  TROPHY
+} SpriteVariation;
+
 typedef struct {
-  unsigned char address;
   unsigned char R;
   unsigned char G;
   unsigned char B;
-} Background;
+} Color;
 
 typedef struct {
   unsigned char address;
   Size size;
-  unsigned char R;
-  unsigned char G;
-  unsigned char B;
+  Color color;
   Shape shape;
   unsigned char rel_x;
   unsigned char rel_y;
@@ -54,14 +79,13 @@ typedef struct {
   unsigned char variation;
   unsigned char rel_x;
   unsigned char rel_y;
-  unsigned char sp;
+  unsigned char visible;
 } Sprite;
 
 typedef struct {
   GraphicElementType type;
   union {
     Polygon* p;
-    Background* b;
     Sprite* s;
   } data;
 } GraphicElement;

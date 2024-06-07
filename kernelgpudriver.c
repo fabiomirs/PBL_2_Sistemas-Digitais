@@ -2,55 +2,27 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <asm/io.h>
-//#include "address_map_arm.h"
+#include "address_map_arm.h"
 #include <linux/uaccess.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
 
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Icaro Ecrea");
+MODULE_AUTHOR("Icaro");
 
 //CONSTANTES
 #define DATA_A  0x80
 #define DATA_B  0x70
 #define START 0xc0
-
+#define WR_FULL 0xb0
 
 #define DRIVER_NAME "gpu123"
 
 static unsigned char data[8]; 
-static size_t tamanhodados=0; 
-
-
 
 void * LW_virtual; // Lightweight bridge base address
-volatile int *DATA_A_PTR, *DATA_B_PTR, *START_PTR; // virtual addresses
-
-
-/*struct gpu_amada{
-    unsigned char data[8];//mudei 4->8
-} gpu_amada;
-*/
-
-void print_binary(unsigned int num) {
-    int i;
-    printk(KERN_INFO "Valor em binário: ");
-    for (i = sizeof(num) * 8 - 1; i >= 0; i--) {
-        printk(KERN_CONT "%d", (num >> i) & 1);
-        if (i % 4 == 0) printk(KERN_CONT " "); // Adiciona um espaço a cada 4 bits para facilitar a leitura
-    }
-    printk(KERN_CONT "\n");
-}
-
-
-
-
-
-
-
-
-
+volatile int *DATA_A_PTR, *DATA_B_PTR, *START_PTR, *WR_FULL_PTR; // virtual addresses
 
 
 
@@ -63,6 +35,17 @@ static struct drvled_data{
 
 
 int major_number;
+
+void print_binary(unsigned int num) {
+    int i;
+    printk(KERN_INFO "Valor em binário: ");
+    for (i = sizeof(num) * 8 - 1; i >= 0; i--) {
+        printk(KERN_CONT "%d", (num >> i) & 1);
+        if (i % 4 == 0) printk(KERN_CONT " "); // Adiciona um espaço a cada 4 bits para facilitar a leitura
+    }
+    printk(KERN_CONT "\n");
+}
+
 
 
 int device_open(struct inode *inode,struct file *filp){
@@ -77,55 +60,50 @@ int device_open(struct inode *inode,struct file *filp){
 
 int ret;
 
-
-
-ssize_t device_write(struct file* filp, const char *bufSourceData, size_t bufCount, loff_t* curOffset){
-
-        ret=copy_from_user(data, bufSourceData, bufCount);
-        if (ret != 0) {
-                printk(KERN_ERR "Failed to copy data from user space\n");
-                return -EFAULT; // Error code for bad address
+int t;
+ssize_t device_write(struct file* filp, const unsigned char *bufSourceData, size_t bufCount, loff_t* curOffset){
+    int ret;
+    unsigned int concat, concat1;
+    printk(KERN_INFO "escrevendo");
+    ret = copy_from_user(data, bufSourceData, bufCount);
+    if (ret != 0) {
+        printk(KERN_ERR "Failed to copy data from user space\n");
+        return -EFAULT; // Error code for bad address
     }
-        //LW_virtual = ioremap_nocache (LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
-        // Set virtual address pointer to I/O port
-        printk(KERN_INFO "escrevendo");
-        //DATA_A_PTR = (unsigned int *) (LW_virtual + DATA_A);
-        //DATA_B_PTR = (unsigned int *) (LW_virtual + DATA_B);  
-        //START_PTR = (unsigned int *) (LW_virtual + START);  
 
+    int i;
+    printk(KERN_INFO "Valores em data:\n");
+    for (i = 0; i < 8; i++) {
+        printk(KERN_INFO "%u ", data[i]);
+    }
+    printk(KERN_INFO "\n");
+    printk(KERN_INFO "\n");
 
-        /*
-        unsigned int concat;
-        concat |= (int)data[7] << 24; // Move os bits do primeiro elemento para a posição mais significativa
-        concat |= (int)data[6] << 16; // Move os bits do segundo elemento para a posição seguinte
-        concat |= (int)data[5] << 8; // Move os bits do terceiro elemento para a posição seguinte
-        concat |= (int)data[4];
-        printk(KERN_INFO "%d valor de concat",concat);
+    LW_virtual = ioremap_nocache (LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
+    
+    DATA_A_PTR = (unsigned int *) (LW_virtual + DATA_A);
+    DATA_B_PTR = (unsigned int *) (LW_virtual + DATA_B);  
+    START_PTR = (unsigned int *) (LW_virtual + START);  
+    WR_FULL_PTR = (unsigned int *) (LW_virtual + WR_FULL);  
 
-        unsigned int concat1;
-        concat1 |= (int)data[3] << 24; // Move os bits do primeiro elemento para a posição mais significativa
-        concat1 |= (int)data[2] << 16; // Move os bits do segundo elemento para a posição seguinte
-        concat1 |= (int)data[1] << 8; // Move os bits do terceiro elemento para a posição seguinte
-        concat1 |= (int)data[0];
-        printk(KERN_INFO "%d valor de concat1",concat1);
-        */
+    while(*WR_FULL_PTR){} // mexemos aqui ó
 
-        unsigned int concat,concat1;
-        concat = (unsigned int)data[7] << 24 | (unsigned int)data[6] << 16 | (unsigned int)data[5] << 8 | (unsigned int)data[4];//c>
-        concat1 = (unsigned int)data[3] << 24 | (unsigned int)data[2] << 16 | (unsigned int)data[1] << 8 | (unsigned int)data[0];//>
-        printk(KERN_INFO "%d valor de concat",concat);
-        printk(KERN_INFO "%d valor de concat1",concat1);
+    printk(KERN_INFO "oioi");
 
-        print_binary(concat);
-        print_binary(concat1);
+    concat = data[7] << 24 | data[6] << 16 | data[5] << 8 | data[4];//c>
+    concat1 = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0];//>
 
+    print_binary(concat1);
+    print_binary(concat);
 
-        //*DATA_A_PTR = concat
-        //*DATA_B_PTR = concat1
+    *START_PTR = 0;
+    *DATA_A_PTR = concat1;
+    *DATA_B_PTR = concat;
+    *START_PTR = 1;
 
-
-        return bufCount;
+    return bufCount;
 }
+
 
 
 int device_close(struct inode *inode, struct file *filp){
@@ -138,7 +116,7 @@ int device_close(struct inode *inode, struct file *filp){
 
 ssize_t device_read(struct file* filp,char *bufDestination, size_t bufCount, loff_t* curOffset){
         int ret;
-
+        printk(KERN_INFO "LENDO DISPOTIVO");
 
 
         ret=copy_to_user(bufDestination,data + *curOffset,bufCount);
