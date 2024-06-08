@@ -68,12 +68,14 @@ int editBlockOnBackgroundMemory(unsigned int block, Color color) {
 }
 
 int setSpriteOnScreen(Sprite sprite) {
-    unsigned char *word = assembleInstructionWBR_2(sprite.address, sprite.variation, sprite.rel_x, sprite.rel_y, sprite.visible);
+    unsigned char *word = assembleInstructionWBR_2(sprite.address, sprite.variation, sprite.rel_y, sprite.rel_x, sprite.visible);
     return writeBitsOnDeviceDriver(word, "erro na escrita de sprite");
 }
 
 int setPolygon(Polygon polygon) {
-    unsigned char *word = assembleInstructionDP(polygon.rel_x+45, polygon.rel_y+45, polygon.address,
+    // unsigned char validate_x = polygon.rel_x + (polygon.size + 1) * 5;
+    // unsigned char validate_y = polygon.rel_y + (polygon.size + 1) * 5;
+    unsigned char *word = assembleInstructionDP(polygon.rel_x, polygon.rel_y, polygon.address,
     polygon.size, polygon.color.R, polygon.color.G, polygon.color.B, polygon.shape);
     return writeBitsOnDeviceDriver(word, "erro na escrita de polígono");
 }
@@ -82,34 +84,6 @@ int eraseBackground() {
     Color color = {7,7,7};
     return setBackground(color);
 }
-
-int main() {
-    Color color = {0b000, 0b111, 0b000};
-    setBackground(color);
-    Sprite sprite;
-    sprite.address = 1;
-    sprite.rel_x= 100;
-    sprite.rel_y= 100;
-    sprite.variation = 5;
-    sprite.visible = 1;
-    setSpriteOnScreen(sprite);
-
-    Polygon p;
-    p.address = 0b10;
-    p.rel_x = 0;
-    p.rel_y = 0;
-    p.size = 0b0001;
-    Color pColor = {0, 0, 7};
-    p.color = pColor;
-    p.shape = TRIANGLE;
-    setPolygon(p);
-
-    Color blockEdit = {4, 4, 4};
-    editBlockOnBackgroundMemory(10, blockEdit);
-    
-    return 0;
-}
-
 
 
 int open_physical (int fd) {

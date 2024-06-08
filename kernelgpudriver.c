@@ -79,12 +79,6 @@ ssize_t device_write(struct file* filp, const unsigned char *bufSourceData, size
     printk(KERN_INFO "\n");
     printk(KERN_INFO "\n");
 
-    LW_virtual = ioremap_nocache (LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
-    
-    DATA_A_PTR = (unsigned int *) (LW_virtual + DATA_A);
-    DATA_B_PTR = (unsigned int *) (LW_virtual + DATA_B);  
-    START_PTR = (unsigned int *) (LW_virtual + START);  
-    WR_FULL_PTR = (unsigned int *) (LW_virtual + WR_FULL);  
 
     while(*WR_FULL_PTR){} // mexemos aqui ó
 
@@ -144,6 +138,8 @@ static int __init init_kernelgpudriver(void) {
     int result;
 
 
+
+
 //     uint16_t buffer1, buffer2;
     result = alloc_chrdev_region(&drvled_data.devnum, 0, 1, DRIVER_NAME);
     if (result) {
@@ -165,6 +161,12 @@ static int __init init_kernelgpudriver(void) {
 
     //drvled_setled(LED_OFF);
    
+    LW_virtual = ioremap_nocache (LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
+    
+    DATA_A_PTR = (unsigned int *) (LW_virtual + DATA_A);
+    DATA_B_PTR = (unsigned int *) (LW_virtual + DATA_B);  
+    START_PTR = (unsigned int *) (LW_virtual + START);  
+    WR_FULL_PTR = (unsigned int *) (LW_virtual + WR_FULL);  
 
 
     pr_info("%s: initialized.\n", DRIVER_NAME);

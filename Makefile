@@ -1,24 +1,26 @@
 obj-m += kernelgpudriver.o
 
 all:
-	make -C /home/valmir/gpu_driver/WSL2-Linux-Kernel M=$(shell pwd) modules
-
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules CFLAGS="-std=c99"
 	
 	sudo insmod kernelgpudriver.ko; \
 
-	if [ ! -e /dev/gpu123 ]; then \
-		sudo mknod /dev/gpu123 c 240 0; \
-	fi
+	rm -f /dev/gpu123
+	
 
-program: instructions.o gpu.o
-	gcc -o gpu gpu.o instructions.o
+program: gputest.o instructions.o gpulib.o
+	gcc -o gputest gputest.o gpulib.o instructions.o
 
 instructions.o: lib/instructions.c
 	gcc -c lib/instructions.c -o instructions.o
 
-gpu.o: lib/gpu.c
-	gcc -c lib/gpu.c -o gpu.o
+gpulib.o: lib/gpulib.c
+	gcc -c lib/gpulib.c
+
+gputest.o: gputest.c
+	gcc -c gputest.c -o gputest.o
 
 clean:
-	make -C /home/valmir/gpu_driver/WSL2-Linux-Kernel M=$(shell pwd) clean
-	rm -f gpu.o instructions.o
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	rm -f gpulib.o instructions.o
+	rm -f kernelgpudriver.mod.o kernelgpudriver.mod kernelgpudriver.ko.cmd kernelgpudriver.o kernelgpudriver.mod.o.cmd kernelgpudriver.o.cmd

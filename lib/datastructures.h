@@ -70,15 +70,15 @@ typedef struct {
   Size size;
   Color color;
   Shape shape;
-  unsigned char rel_x;
-  unsigned char rel_y;
+  unsigned int rel_x;
+  unsigned int rel_y;
 } Polygon;
 
 typedef struct {
-  unsigned char address;
+  unsigned int address;
   unsigned char variation;
-  unsigned char rel_x;
-  unsigned char rel_y;
+  unsigned int rel_x;
+  unsigned int rel_y;
   unsigned char visible;
 } Sprite;
 

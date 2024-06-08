@@ -99,6 +99,8 @@ unsigned char* assembleInstructionWBM(
     
     palavra[1] =  (address & 0xFF0) >> 4;
 
+    palavra[2] = (address & 0x3000) >> 12;
+
     palavra[4] |= (R & 0x07); 
 
     palavra[4] |= (G & 0x07) << 3; 
