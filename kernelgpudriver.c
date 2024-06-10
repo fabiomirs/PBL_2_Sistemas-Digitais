@@ -6,7 +6,7 @@
 #include <linux/uaccess.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
-
+#include <linux/delay.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Icaro");
@@ -80,8 +80,11 @@ ssize_t device_write(struct file* filp, const unsigned char *bufSourceData, size
     printk(KERN_INFO "\n");
 
 
-    while(*WR_FULL_PTR){} // mexemos aqui ó
-
+    while(*WR_FULL_PTR){
+        msleep(10);
+        if(*WR_FULL_PTR == 0)
+          break;
+    }
     printk(KERN_INFO "oioi");
 
     concat = data[7] << 24 | data[6] << 16 | data[5] << 8 | data[4];//c>

@@ -8,8 +8,8 @@ int main() {
     // setBackground(color);
     Sprite sprite;
     sprite.address = 1;
-    sprite.rel_x= 60;
-    sprite.rel_y= 40;
+    sprite.rel_x= 150;
+    sprite.rel_y= 70;
     sprite.variation = ALIEN_1;
     sprite.visible = 1;
 
@@ -17,172 +17,79 @@ int main() {
 
     
     
-    for(i = 0; i <= 32; i++){
-        sprite.address = i;
-        sprite.visible = 0;
-        setSpriteOnScreen(sprite);
-    }
+    // for(i = 0; i <= 32; i++){
+    //     sprite.address = i;
+    //     sprite.visible = 0;
+    //     setSpriteOnScreen(sprite);
+    // }
 
     sprite.address = 1;
     sprite.visible = 1;
-    sprite.rel_x= 60;
-    for(i = 0; i< 17; i++){
+    sprite.rel_x= 150;
+    for(i = 0; i< 8; i++){
         setSpriteOnScreen(sprite);
         sprite.address++;
-        sprite.rel_x +=20;
-
+        sprite.rel_x +=40;
     }
-    // sprite.rel_y += 40;
-    // sprite.rel_x= 60;
-    // for(i = 0; i< 10; i++){
-    //     setSpriteOnScreen(sprite);
-    //     sprite.address++;
-    //     sprite.rel_x += 40;
-    // }
-    
-
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-
-    // sprite.rel_y += 40;
-    // sprite.rel_x = 60;
-
-
-    // sprite.visible = 1;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-    // sprite.address++;
-    // sprite.rel_x += 40;
-    // setSpriteOnScreen(sprite);
-
-
-    // for (i = 0; i < 10; i++) {
-    //     sprite.rel_x = 40*i;
-    //     for (j = 0; j < 3; j++){
-    //         sprite.rel_y = 40*j;
-    //         setSpriteOnScreen(sprite);
-    //         sprite.address++;
-    //     }
-
-    // }
-
-
-    // for(i = 0; i < 11; i++) {
-    //     setSpriteOnScreen(sprite);
-    //     sprite.rel_x += 40;
-    //     sprite.address++;
-    // }
-
-
-    // sprite.rel_y = 80;
-    // sprite.rel_x= 60;
-    
-    // for(i = 0; i < 10; i++) {
-    //     setSpriteOnScreen(sprite);
-    //     sprite.rel_x += 40;
-    //     sprite.address++;
-    // }
-
-    // sprite.rel_y = 120;
-    // sprite.rel_x= 60;
-    
-    // for(i = 0; i < 10; i++) {
-    //     setSpriteOnScreen(sprite);
-    //     sprite.rel_x += 40;
-    //     sprite.address++;
-    // }
+    sprite.rel_y += 40;
+    sprite.rel_x= 150;
+    for(i = 0; i< 8; i++){
+        setSpriteOnScreen(sprite);
+        sprite.address++;
+        sprite.rel_x += 40;
+    }
+    sprite.rel_y += 40;
+    sprite.rel_x= 150;
+    for(i = 0; i< 8; i++){
+        setSpriteOnScreen(sprite);
+        sprite.address++;
+        sprite.rel_x += 40;
+    }
 
     Color star = {7,7,7};
 
     setPixelOnSpriteMemory(25*400, star);
-    Sprite starSprite;
-    starSprite.address = 15;
-    starSprite.rel_x= 310;
-    starSprite.rel_y= 450;
-    starSprite.variation = PLANE_UP;
-    starSprite.visible = 1;
+    Sprite plane;
+    plane.address = 27;
+    plane.rel_x= 310;
+    plane.rel_y= 450;
+    plane.variation = PLANE_UP;
+    plane.visible = 1;
 
-    setSpriteOnScreen(starSprite);
+    setSpriteOnScreen(plane);
 
+    Sprite beam;
+    beam.address = 26;
+    beam.rel_x = 310;
+    beam.rel_y = 420;
+    beam.variation = BEAM_VERTICAL;
+    beam.visible = 1;
 
+    setSpriteOnScreen(beam);
 
-    // sprite.address = 31;
-    // sprite.rel_x= 60;
-    // sprite.rel_y= 40;
-    // setSpriteOnScreen(sprite);
+    Polygon p;
+    p.address = 0;
+    p.rel_x = 450;
+    p.rel_y = 350;
+    p.size = s40x40;
+    Color pColor = {0, 7, 0};
+    p.color = pColor;
+    p.shape = TRIANGLE;
 
+    setPolygon(p);
 
-    // Polygon p;
-    // p.address = 0b1;
-    // p.rel_x = 511;
-    // p.rel_y = 10;
-    // p.size = 0b001;
-    // Color pColor = {7, 0, 0};
-    // p.color = pColor;
-    // p.shape = TRIANGLE;
-    // setPolygon(p);
+    for(i = 1; i < 4; i++){
+        p.address = i;
+        p.rel_x -= 100;
+        setPolygon(p);
+    }
+
 
     srand(time(NULL));
 
     Color sky = {0,0,1};
 
-
-    setBackground(sky);
+    setPixelOnSpriteMemory(ALIEN_1*400, sky);
     
     for(i = 0; i < 4800; i++)
         editBlockOnBackgroundMemory(i, sky);

@@ -10,6 +10,7 @@ all:
 
 program: gputest.o instructions.o gpulib.o
 	gcc -o gputest gputest.o gpulib.o instructions.o
+	rm -f gpulib.o instructions.o
 
 instructions.o: lib/instructions.c
 	gcc -c lib/instructions.c -o instructions.o
@@ -22,5 +23,5 @@ gputest.o: gputest.c
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	rm -f gpulib.o instructions.o
+	rm -f gpulib.o instructions.o gputest
 	rm -f kernelgpudriver.mod.o kernelgpudriver.mod kernelgpudriver.ko.cmd kernelgpudriver.o kernelgpudriver.mod.o.cmd kernelgpudriver.o.cmd
