@@ -12,10 +12,6 @@
 int open_physical (int);
 void close_physical (int);
 
-GraphicElement screenElements[32] = {};
-char availableRegisters[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
-
 char lastRegister = 0;
 
 void printBits(char *palavra) {
@@ -35,21 +31,22 @@ int writeBitsOnDeviceDriver(unsigned char* bits, char* error_msg){
     if ((fd = open_physical (fd)) == -1)
         return (-1);
 
-    ssize_t buffer =  write(fd,bits,8);
+    ssize_t buffer =  write(fd,bits,8); //escreve buffer de 8 bytes no kernel, com os dados para DATA_A e DATA_B
 
     unsigned char lendo[8];
-    ssize_t bytesRead=read(fd,lendo,8);
+    ssize_t bytesRead=read(fd,lendo,8); //recebe retorno do kernel para verificar se a escrita foi correta
     if (bytesRead<0) {
         printf("%s", error_msg);
         close_physical (fd);
         return bytesRead;
     }
 
-    close_physical (fd);
+    close_physical (fd); // fecha char device driver
     return 0;   
 }
 
-
+//as funções a seguir formam a palavra da instrução e chamam a função de envio para o kernel.
+//Ao final, retornam se a operação foi concluída com sucesso.
 
 int setBackground(Color color) {
     char *word = assembleInstructionWBR(color.R, color.G, color.B);
@@ -73,8 +70,6 @@ int setSpriteOnScreen(Sprite sprite) {
 }
 
 int setPolygon(Polygon polygon) {
-    // unsigned char validate_x = polygon.rel_x + (polygon.size + 1) * 5;
-    // unsigned char validate_y = polygon.rel_y + (polygon.size + 1) * 5;
     unsigned char *word = assembleInstructionDP(polygon.rel_x, polygon.rel_y, polygon.address,
     polygon.size, polygon.color.R, polygon.color.G, polygon.color.B, polygon.shape);
     return writeBitsOnDeviceDriver(word, "erro na escrita de polígono");
@@ -82,14 +77,12 @@ int setPolygon(Polygon polygon) {
 
 int eraseBackground() {
     Color color = {7,7,7};
-    return setBackground(color);
+    return setBackground(color); //apenas pinta a tela de preto
 }
 
 
 int open_physical (int fd) {
-
-
-    if ((fd = open( "/dev/gpu123", (O_RDWR | O_SYNC))) == -1) {
+    if ((fd = open( "/dev/gpu123", (O_RDWR | O_SYNC))) == -1) { //verifica existência e legibilidade do char device driver
         printf ("ERROR: could not open \"/dev/mem\"...\n");
         return (-1);
     }
