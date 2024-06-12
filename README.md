@@ -1,12 +1,9 @@
 # Conversas entre Hardware e Software
 ## Introdução
 
-Visão geral do projeto
 	As GPUs (Graphics Processing Units), ou Unidades de Processamento Gráfico, desempenham um papel cada vez mais crucial no cenário da computação moderna. Originalmente concebidas para lidar com a complexidade do processamento gráfico em jogos e aplicações visuais, essas unidades evoluíram para se tornarem poderosas ferramentas de processamento paralelo em uma ampla gama de domínios, desde aprendizado de máquina até simulações científicas.
 	
- 	Nesse contexto, o aluno de engenharia da computação, Gabriel B. Alves, concebeu e desenvolveu um projeto para ser utilizado em FPGAs. Neste projeto, ele criou uma GPU para facilitar o processo de criação de jogos, recebendo instruções e renderizando as imagens em um monitor VGA.
-	
- 	Em consonância com isso, foi proposto o desenvolvimento de um módulo Kernel em linguagem C para a placa de estudos DE1-SoC. O objetivo é criar um módulo kernel no sistema operacional Linux, localizado na parte HPS (Hard Processor System) da placa, para interagir com uma GPU (Graphics Processing Unit) localizada na parte FPGA (Field-Programmable Gate Array). Essa GPU será responsável por mover e controlar elementos em um monitor VGA (Video Graphics Array) com resolução de 640x480 pixels. Além disso, será necessário desenvolver uma biblioteca para facilitar a comunicação entre o usuário e o módulo kernel, proporcionando uma solução viável para a interação entre o código C escrito pelo usuário e o módulo kernel que controlará a GPU.
+ 	Nesse contexto, o aluno de engenharia da computação, Gabriel B. Alves, concebeu e desenvolveu um projeto para ser utilizado em FPGAs. Neste projeto, ele criou uma GPU para facilitar o processo de criação de jogos, recebendo instruções e renderizando as imagens em um monitor VGA. Em consonância com isso, foi proposto o desenvolvimento de um módulo Kernel em linguagem C para a placa de estudos DE1-SoC. O objetivo é criar um módulo kernel no sistema operacional Linux, localizado na parte HPS (Hard Processor System) da placa, para interagir com uma GPU (Graphics Processing Unit) localizada na parte FPGA (Field-Programmable Gate Array). Essa GPU será responsável por mover e controlar elementos em um monitor VGA (Video Graphics Array) com resolução de 640x480 pixels. Além disso, será necessário desenvolver uma biblioteca para facilitar a comunicação entre o usuário e o módulo kernel, proporcionando uma solução viável para a interação entre o código C escrito pelo usuário e o módulo kernel que controlará a GPU.
 
 
 - Objetivos principais:
@@ -61,7 +58,6 @@ A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápid
 
 
 ## Metodologia
-
 	Para realizar o projeto, foi necessário o entendimento acerca de algumas peculiaridades do funcionamento do kernel do linux, em conjunto com a construção de um módulo externo para o kernel, e compreensão do funcionamento da unidade de processamento gráfica utilizada. 
 
 Para o desenvolver do projeto foi necessário fazer algumas subdivisões a fim de atingir a produção final do que foi proposto, são elas:
@@ -82,7 +78,7 @@ Para fazer a comunicação entre HPS e FPGA é utilizado uma série de pontes AX
 <p align="center"><strong>Fonte: 
 </strong></p>
 
-	Esta figura fornece um esboço detalhado de como o HPS, FPGA e seus associados periféricos se comunicam através de uma série de pontes e barramentos AXI. O HPS suporta a comunicação com o FPGA e periféricos através da interconexão L3, que está conectada ao controlador SDRAM HPS (DDR3).
+Esta figura fornece um esboço detalhado de como o HPS, FPGA e seus associados periféricos se comunicam através de uma série de pontes e barramentos AXI. O HPS suporta a comunicação com o FPGA e periféricos através da interconexão L3, que está conectada ao controlador SDRAM HPS (DDR3).
  
 Abaixo pode-se ver uma figura representativa do L3:
 
@@ -118,7 +114,8 @@ Um arquivo de dispositivo importante para esse propósito é o /dev/mem, que rep
 <p align="center"><strong>Fonte: 
 </strong></p>
 
-	Analisando cada elemento presente na imagem acima é possível compreender o fluxo que se dá dentro do processador gráfico, podendo ser descrito, dentre seus elementos principais, da seguinte forma:
+Analisando cada elemento presente na imagem acima é possível compreender o fluxo que se dá dentro do processador gráfico, podendo ser descrito, dentre seus elementos principais, da seguinte forma:
+
 A unidade de controle inicia o processo do fluxo de dados, responsável por controlar o fluxo de instruções e coordenar a operação dos outros componentes, ela recebe o opcode para saber com qual instrução está lidando e gera sinais de controle como memory_wr_sp, reset_vga, e a indicação para a instrução passada, representado por “new inst”, este módulo vai funcionar como uma máquina de estados. Na sequência, o decodificador de instrução decodifica a instrução recebida para determinar quais operações realizar e relacioná-las aos multiplexadores, ao banco de registradores e às memórias. O banco de registradores tem a função de armazenar dados temporários durante a execução de instruções, recebendo register_wr para escrita em registradores, o dado que vai ser escrito e em qual registrador, e fornece R0 como saída, além de se conectar ao módulo de desenho e outros componentes. O módulo de desenho é responsável por desenhar os elementos gráficos na tela, recebendo os bits vindos do banco de registradores, o dado de saída da memória de background e os pixels correspondentes ao desenho. A memória de background armazena os dados de fundo (background) da tela, conectando-se ao módulo de desenho pela saída out_data. A memória de sprites armazena os dados dos sprites (imagens) na tela, similar à memória de background, conectando-se ao gerador RGB que em seguida envia os sinais para o monitor. O co-processador realiza operações auxiliares que suportam a unidade de controle principal, recebendo sinais de diversas partes da estrutura e sendo responsável por gerar os polígonos no monitor. O controlador VGA controla o sinal VGA para a tela, recebendo sinais de controle como reset_vga, e gerando sinais para o monitor (monitor_signals) e coordenadas dos pixels (pixel_x, pixel_y). O gerador RGB converte os dados gráficos para sinais RGB que são enviados ao monitor, recebendo dados de diversos módulos e enviando sinais RGB para o monitor. Por fim, os multiplexadores (Mux) selecionam entre várias entradas e encaminham para a saída com base nos sinais de controle, recebendo vários sinais de entrada, como data, address, etc., e fornecendo as saídas apropriadas aos componentes.
 
 * Acesso a GPU
@@ -141,8 +138,7 @@ Essas figuras representam a instrução de Escrita no Banco de Registradores (WB
 <p align="center"><strong>Fonte: 
 </strong></p>
 
-	Em ambas, o valor de "dataA" é idêntico. O campo "opcode" é composto por 4 bits e determina qual instrução será executada pelo processador gráfico, nesse campo o seu valor deve ser 0000. O campo “registrador” em questão possui 5 bits e é empregado para especificar onde os parâmetros de impressão serão armazenados.
-
+Em ambas, o valor de "dataA" é idêntico. O campo "opcode" é composto por 4 bits e determina qual instrução será executada pelo processador gráfico, nesse campo o seu valor deve ser 0000. O campo “registrador” em questão possui 5 bits e é empregado para especificar onde os parâmetros de impressão serão armazenados.
 	Na primeira figura, o campo "dataB" representa as configurações do sprite. Ele inclui o campo "offset" com 9 bits, os quais são utilizados para selecionar o sprite na memória. Além disso, existem os campos "coordenada X" e "coordenada Y" para definir a posição dos sprites na tela, e o campo "sp" para determinar se o sprite é visível ou não. Na segunda figura, os campos “R”, “G” e “B” representam, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para configurar a cor base do background do sprite. Abaixo, está a representação de todos os sprites disponíveis que podem ser usados e que estão armazenados na memória.
 
 <p align="center"><strong> </strong></p>
@@ -159,8 +155,7 @@ Essa figura representa a instrução de Escrita na Memória de Sprites (WSM) res
 <p align="center"><strong>Fonte: 
 </strong></p>
 
-	O campo “dataA” possui 4 bits e deve ser configurado como 0001 para esta instrução. O endereço de memória possui 14 bits e é utilizado para especificar qual local da memória será alterado. Já o campo “dataB” possui os campos “R”, “G” e “B”, representando, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para definir os novos componentes RGB para o local desejado.
-
+O campo “dataA” possui 4 bits e deve ser configurado como 0001 para esta instrução. O endereço de memória possui 14 bits e é utilizado para especificar qual local da memória será alterado. Já o campo “dataB” possui os campos “R”, “G” e “B”, representando, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para definir os novos componentes RGB para o local desejado.
 	A instrução de  Escrita na Memória de Background (WBM) é responsável por armazenar ou modificar o conteúdo presente na Memória de Background. Sua função é configurar valores RGB para o preenchimento de áreas do background. Os campos de sua estrutura assemelham-se aos da instrução WSM, com as únicas discrepâncias sendo no campo de endereço de memória, o qual possui um tamanho de 12 bits e o valor do opcode é definido como 0010.
 Essa figura representa a instrução para a Definição de um Polígono (DP) responsável por definir os dados referentes a um polígono que deve ser renderizado.
 
@@ -170,10 +165,10 @@ Essa figura representa a instrução para a Definição de um Polígono (DP) res
 <p align="center"><strong>Fonte: 
 </strong></p>
 
-	Nesta instrução, o campo “dataA” possui 4 bits e deve ser configurado como 0011. O endereço de memória possui 4 bits e é utilizado para determinar o local de armazenamento em memória da instrução, permitindo o gerenciamento da sobreposição dos polígonos. Já o campo “dataB” possui os campos “R”, “G” e “B”, representando, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para definir as cores. Também possui o campo “forma” com 1 bit, que se possui valor igual a 0 será um quadrado e se possui o valor 1 será um triângulo. Outro campo é o “tamanho”, com 4 bits, que representam o tamanho do polígono, desde o desativado até 160 x 160 pixels. Os campos "ref_point_X" e "ref_point_Y" são empregados para estabelecer as coordenadas do ponto de referência do polígono.
+Nesta instrução, o campo “dataA” possui 4 bits e deve ser configurado como 0011. O endereço de memória possui 4 bits e é utilizado para determinar o local de armazenamento em memória da instrução, permitindo o gerenciamento da sobreposição dos polígonos. Já o campo “dataB” possui os campos “R”, “G” e “B”, representando, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para definir as cores. Também possui o campo “forma” com 1 bit, que se possui valor igual a 0 será um quadrado e se possui o valor 1 será um triângulo. Outro campo é o “tamanho”, com 4 bits, que representam o tamanho do polígono, desde o desativado até 160 x 160 pixels. Os campos "ref_point_X" e "ref_point_Y" são empregados para estabelecer as coordenadas do ponto de referência do polígono.
 
 
-* 5. Construção do módulo kernel
+* Construção do módulo kernel
 
 	O kernel é o núcleo de qualquer sistema operacional, essencial para o funcionamento de dispositivos eletrônicos, trabalhando no gerenciamento da comunicação entre hardware e software. Além disso, o kernel gerencia periféricos, necessitando de configurações específicas para cada dispositivo. Sua função é organizar, controlar e processar dados, desde a inicialização do sistema até a tradução das solicitações dos usuários em ações, assegurando que todas as partes do sistema operacional funcionem harmoniosamente. Sem o kernel, a operação eficaz de qualquer sistema seria impossível, tornando-o um componente indispensável.
 
@@ -200,9 +195,8 @@ Durante o desenvolvimento de um módulo externo do kernel, como foi o necessári
 <p align="center"><strong>Fonte: 
 </strong></p>
 
-	No projeto atual, o módulo de kernel desenvolvido para o processamento paralelo da GPU utiliza um "device char" driver para gerenciar as operações de entrada e saída, assegurando que as instruções e os dados sejam transmitidos de maneira eficiente e segura entre a CPU e a GPU. A relação entre um módulo de kernel e um "device char" driver é essencial para a comunicação direta e eficiente com o hardware. 
- 
-	Conceituando um “device char” é um componente fundamental no sistema operacional Linux, sendo utilizado para interagir com o hardware que processa dados em pequenas quantidades. Estes dispositivos são representados como arquivos no sistema de arquivos, permitindo acesso através de chamadas de sistemas convencionais como leitura e escrita. Esses dispositivos são fundamentais para a comunicação direta com o hardware e utilizam da sincronização para garantir que os dados sejam lidos e escritos de forma ordenada e exclusiva, evitando conflitos de acesso simultâneos. Esses drivers são carregados como módulos de kernel, proporcionando uma interface que facilita a leitura e escrita de dados entre o sistema operacional e o hardware, garantindo acesso ordenado e exclusivo, e evitando conflitos.
+No projeto atual, o módulo de kernel desenvolvido para o processamento paralelo da GPU utiliza um "device char" driver para gerenciar as operações de entrada e saída, assegurando que as instruções e os dados sejam transmitidos de maneira eficiente e segura entre a CPU e a GPU. A relação entre um módulo de kernel e um "device char" driver é essencial para a comunicação direta e eficiente com o hardware. 
+ 	Conceituando um “device char” é um componente fundamental no sistema operacional Linux, sendo utilizado para interagir com o hardware que processa dados em pequenas quantidades. Estes dispositivos são representados como arquivos no sistema de arquivos, permitindo acesso através de chamadas de sistemas convencionais como leitura e escrita. Esses dispositivos são fundamentais para a comunicação direta com o hardware e utilizam da sincronização para garantir que os dados sejam lidos e escritos de forma ordenada e exclusiva, evitando conflitos de acesso simultâneos. Esses drivers são carregados como módulos de kernel, proporcionando uma interface que facilita a leitura e escrita de dados entre o sistema operacional e o hardware, garantindo acesso ordenado e exclusivo, e evitando conflitos.
 
 * Construção da biblioteca
 	Para tornar o uso do módulo kernel mais acessível aos usuários, desenvolvemos uma biblioteca em C que simplifica o entendimento e a interação com o módulo kernel. Essa abstração facilita o envio de instruções do espaço do usuário para o espaço do kernel, tornando o processo mais intuitivo para usuários comuns.
@@ -250,8 +244,7 @@ Para testar e executar o projeto é necessário seguir os seguintes passos, já 
 
 
 ## Resultados e conclusão
-
-	O projeto alcançou todos os objetivos estabelecidos, possuindo um módulo kernel e uma biblioteca, como interface de facilitação da passagem de dados do espaço do usuário para o kernel. O entendimento de como ocorre todo o processo, desde a utilização de uma função na biblioteca até a chegada da solicitação de execução de uma instrução a GPU, foi crucial para o bem desenvolver do trabalho.
+O projeto alcançou todos os objetivos estabelecidos, possuindo um módulo kernel e uma biblioteca, como interface de facilitação da passagem de dados do espaço do usuário para o kernel. O entendimento de como ocorre todo o processo, desde a utilização de uma função na biblioteca até a chegada da solicitação de execução de uma instrução a GPU, foi crucial para o bem desenvolver do trabalho.
  
 O código em C implementado para exemplificar o uso de todos os entes apresentados, pode ser visualizado na imagem abaixo, que é uma representação da tela do jogo “Space invaders”.
 
