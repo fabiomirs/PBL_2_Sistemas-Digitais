@@ -277,6 +277,15 @@ Possuindo o uso das instruções de:
 
 ## Referências
 
+Cyclone V Device Handbook. Volume 3: Hard Processor System Technical Reference Manual
+Introduction to Linux kernel Character Device Drivers › FLUSP - FLOSS at USP
+Centro de Ciências Exatas e Tecnologia, UNIRIO.(kernel | Guia Linux (uniriotec.br)) 
+https://www.intel.com/content/www/us/en/docs/programmable/683711/21-2/system-interconnect-39578.html
+https://drive.google.com/file/d/1MlIlpB9TSnoPGEMkocr36EH9-CFz8psO/view
+https://resumos.leic.pt/so/memory-management/
+https://linux-kernel-labs.github.io/refs/heads/master/labs/device_drivers.html
+
+
 
 ## Autores
 
