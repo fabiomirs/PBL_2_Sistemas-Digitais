@@ -2,7 +2,9 @@
 ## Introdução
 
 	As GPUs (Graphics Processing Units), ou Unidades de Processamento Gráfico, desempenham um papel cada vez mais crucial no cenário da computação moderna. Originalmente concebidas para lidar com a complexidade do processamento gráfico em jogos e aplicações visuais, essas unidades evoluíram para se tornarem poderosas ferramentas de processamento paralelo em uma ampla gama de domínios, desde aprendizado de máquina até simulações científicas.
- 	Nesse contexto, o aluno de engenharia da computação, Gabriel B. Alves, concebeu e desenvolveu um projeto para ser utilizado em FPGAs. Neste projeto, ele criou uma GPU para facilitar o processo de criação de jogos, recebendo instruções e renderizando as imagens em um monitor VGA. Em consonância com isso, foi proposto o desenvolvimento de um módulo Kernel em linguagem C para a placa de estudos DE1-SoC. O objetivo é criar um módulo kernel no sistema operacional Linux, localizado na parte HPS (Hard Processor System) da placa, para interagir com uma GPU (Graphics Processing Unit) localizada na parte FPGA (Field-Programmable Gate Array). Essa GPU será responsável por mover e controlar elementos em um monitor VGA (Video Graphics Array) com resolução de 640x480 pixels. Além disso, será necessário desenvolver uma biblioteca para facilitar a comunicação entre o usuário e o módulo kernel, proporcionando uma solução viável para a interação entre o código C escrito pelo usuário e o módulo kernel que controlará a GPU.
+ 	
+  	Nesse contexto, o aluno de engenharia da computação, Gabriel B. Alves, concebeu e desenvolveu um projeto para ser utilizado em FPGAs. Neste projeto, ele criou uma GPU para facilitar o processo de criação de jogos, recebendo instruções e renderizando as imagens em um monitor VGA. 
+	Em consonância com isso, foi proposto o desenvolvimento de um módulo Kernel em linguagem C para a placa de estudos DE1-SoC. O objetivo é criar um módulo kernel no sistema operacional Linux, localizado na parte HPS (Hard Processor System) da placa, para interagir com uma GPU (Graphics Processing Unit) localizada na parte FPGA (Field-Programmable Gate Array). Essa GPU será responsável por mover e controlar elementos em um monitor VGA (Video Graphics Array) com resolução de 640x480 pixels. Além disso, será necessário desenvolver uma biblioteca para facilitar a comunicação entre o usuário e o módulo kernel, proporcionando uma solução viável para a interação entre o código C escrito pelo usuário e o módulo kernel que controlará a GPU.
 
 
 - Objetivos principais:
@@ -57,8 +59,8 @@ A capacidade da GPU de realizar cálculos matemáticos complexos de forma rápid
 
 
 ## Metodologia
-	Para realizar o projeto, foi necessário o entendimento acerca de algumas peculiaridades do funcionamento do kernel do linux, em conjunto com a construção de um módulo externo para o kernel, e compreensão do funcionamento da unidade de processamento gráfica utilizada. 
-Para o desenvolver do projeto foi necessário fazer algumas subdivisões a fim de atingir a produção final do que foi proposto, são elas:
+	Para realizar o projeto, foi necessário o entendimento acerca de algumas peculiaridades do funcionamento do kernel do linux, em conjunto com a construção de um módulo externo para o kernel, 
+ e compreensão do funcionamento da unidade de processamento gráfica utilizada. Para o desenvolver do projeto foi necessário fazer algumas subdivisões a fim de atingir a produção final do que foi proposto, são elas:
 
 * Comunicação entre HPS e FPGA
 Para fazer a comunicação entre HPS e FPGA é utilizado uma série de pontes AXI (Advanced Extensible Interface) para conectá-los. Existem três pontes principais para comunicação:
