@@ -71,20 +71,22 @@ Para fazer a comunicação entre HPS e FPGA é utilizado uma série de pontes AX
 
 	No projeto em questão, optou-se pela Lightweight HPS-to-FPGA bridge (lwh2f). Esta ponte é projetada especificamente para comunicação do HPS para a FPGA, sendo limitada a 32 bits, mas otimizada para minimizar a latência. Sua função principal é transferir registros de controle e status do HPS para a FPGA. Na figura abaixo pode-se ver como é organizado a comunicação entre essas duas partes:
 
-<p align="center"><strong> </strong></p>
+<p align="center"><strong>Componentes da De1-Soc. </strong></p>
 <p align="center">
+  <img src="imagens/comunicação entre HPS e FPGA.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 Esta figura fornece um esboço detalhado de como o HPS, FPGA e seus associados periféricos se comunicam através de uma série de pontes e barramentos AXI. O HPS suporta a comunicação com o FPGA e periféricos através da interconexão L3, que está conectada ao controlador SDRAM HPS (DDR3).
  
 Abaixo pode-se ver uma figura representativa do L3:
 
-<p align="center"><strong> </strong></p>
+<p align="center"><strong>Representação da L3. </strong></p>
 <p align="center">
+  <img src="imagens/representação do L3.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 A interconexão do sistema fornece acesso a um espaço de endereço de 4 GB, os espaços de endereço são divididos em uma ou mais regiões contíguas não sobrepostas. As regiões da janela fornecem acesso a outros espaços de endereço. As setas pretas indicam qual espaço de endereço é acessado por uma região de janela (as setas apontam para o espaço de endereço acessado). Nesse sentido, o mapeamento permite que a CPU visualize e acesse o espaço de endereçamento do FPGA, onde os componentes estão localizados. Dessa forma, é possível ler e gravar informações conforme necessário, controlando o hardware por meio do software.
@@ -93,11 +95,13 @@ O aplicativo em C utiliza APIs do módulo kernel do Linux para enviar dados de e
 
 A tabela a seguir mostra os endereços de memória das pontes: 
 
-<p align="center"><strong> </strong></p>
+<p align="center"><strong>Tabela de endereços. </strong></p>
 <p align="center">
+  <img src="imagens/tabela de endereços.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
+
 
 * Mapeamento de memória física
 	Quando os programas estão sendo executados no Linux, o acesso à memória física não é feito de maneira direta. Isso ocorre porque o Linux utiliza um sistema de memória virtual, onde os endereços de memória usados pelos programas são mapeados para endereços de memória física pelo sistema operacional.
@@ -107,10 +111,11 @@ Um arquivo de dispositivo importante para esse propósito é o /dev/mem, que rep
 
 * Arquitetura do Processador Gráfico
 
-<p align="center"><strong> </strong></p>
+<p align="center"><strong>Estrutura interna do processador gráfico. </strong></p>
 <p align="center">
+  <img src="imagens/arquitetura do processador.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 Analisando cada elemento presente na imagem acima é possível compreender o fluxo que se dá dentro do processador gráfico, podendo ser descrito, dentre seus elementos principais, da seguinte forma:
@@ -127,14 +132,16 @@ Essas figuras representam a instrução de Escrita no Banco de Registradores (WB
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/parte 1 das instruções.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/parte 2 das instruções.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 Em ambas, o valor de "dataA" é idêntico. O campo "opcode" é composto por 4 bits e determina qual instrução será executada pelo processador gráfico, nesse campo o seu valor deve ser 0000. O campo “registrador” em questão possui 5 bits e é empregado para especificar onde os parâmetros de impressão serão armazenados.
@@ -142,16 +149,18 @@ Em ambas, o valor de "dataA" é idêntico. O campo "opcode" é composto por 4 bi
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/sprites.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 Essa figura representa a instrução de Escrita na Memória de Sprites (WSM) responsável por armazenar ou modificar o conteúdo presente na Memória de Sprites. 
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/parte 4 das instruções.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 O campo “dataA” possui 4 bits e deve ser configurado como 0001 para esta instrução. O endereço de memória possui 14 bits e é utilizado para especificar qual local da memória será alterado. Já o campo “dataB” possui os campos “R”, “G” e “B”, representando, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para definir os novos componentes RGB para o local desejado.
@@ -160,8 +169,9 @@ Essa figura representa a instrução para a Definição de um Polígono (DP) res
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/parte 3 das instruções.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 Nesta instrução, o campo “dataA” possui 4 bits e deve ser configurado como 0011. O endereço de memória possui 4 bits e é utilizado para determinar o local de armazenamento em memória da instrução, permitindo o gerenciamento da sobreposição dos polígonos. Já o campo “dataB” possui os campos “R”, “G” e “B”, representando, respectivamente, os bits das cores vermelha, verde e azul, cada um contendo 3 bits, para definir as cores. Também possui o campo “forma” com 1 bit, que se possui valor igual a 0 será um quadrado e se possui o valor 1 será um triângulo. Outro campo é o “tamanho”, com 4 bits, que representam o tamanho do polígono, desde o desativado até 160 x 160 pixels. Os campos "ref_point_X" e "ref_point_Y" são empregados para estabelecer as coordenadas do ponto de referência do polígono.
@@ -190,8 +200,9 @@ Durante o desenvolvimento de um módulo externo do kernel, como foi o necessári
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/sobre kernel.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 No projeto atual, o módulo de kernel desenvolvido para o processamento paralelo da GPU utiliza um "device char" driver para gerenciar as operações de entrada e saída, assegurando que as instruções e os dados sejam transmitidos de maneira eficiente e segura entre a CPU e a GPU. A relação entre um módulo de kernel e um "device char" driver é essencial para a comunicação direta e eficiente com o hardware. 
@@ -249,8 +260,9 @@ O código em C implementado para exemplificar o uso de todos os entes apresentad
 
 <p align="center"><strong> </strong></p>
 <p align="center">
+  <img src="imagens/tela final.png" width = "400" />
 </p>
-<p align="center"><strong>Fonte: 
+<p align="center"><strong>
 </strong></p>
 
 Possuindo o uso das instruções de: 
