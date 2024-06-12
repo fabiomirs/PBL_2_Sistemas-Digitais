@@ -230,9 +230,9 @@ Dessa forma, as funções podem escrever os dados necessários no arquivo usando
 
 * Descrição de instalação e execução.
 
-	Para compilar e gerenciar o módulo kernel desenvolvido, foi utilizado um makefile como meio de facilitação dos comandos e ações necessárias para executar o projeto na placa de desenvolvimento. Através do makefile é possível: Compilar e instalar um módulo do kernel (BOTAR LINK PARA kernelgpudriver.ko), compilar um programa de usuário (BOTAR LINK PARA gputest), limpar os arquivos de compilação gerados para ambos.
+	Para compilar e gerenciar o módulo kernel desenvolvido, foi utilizado um makefile como meio de facilitação dos comandos e ações necessárias para executar o projeto na placa de desenvolvimento. Através do makefile é possível: Compilar e instalar um módulo do kernel, compilar um programa de usuário, limpar os arquivos de compilação gerados para ambos.
 
-Para testar e executar o projeto é necessário seguir os seguintes passos, já relacionados a uma descrição do arquivo (BOTAR LINK PARA makefile):
+Para testar e executar o projeto é necessário seguir os seguintes passos, já relacionados a uma descrição do arquivo:
 
 - Compilação do Módulo do Kernel:
 	- Acesse através do terminal o diretório que contém o Makefile.
