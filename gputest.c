@@ -5,7 +5,7 @@
 
 int main() {
     //criando modelo de sprite do alien a ser replicado
-    Sprite sprite;
+    sprite_t sprite;
     sprite.address = 1;
     sprite.rel_x= 150;
     sprite.rel_y= 70;
@@ -41,11 +41,11 @@ int main() {
         sprite.rel_x += 40;
     }
 
-    Color star = {7,7,7}; //cor das estrelas (blocos de background a serem editados)
+    color_t star = {7,7,7}; //cor das estrelas (blocos de background a serem editados)
     
     
     //configurando avião do player
-    Sprite plane;
+    sprite_t plane;
     plane.address = 27;
     plane.rel_x= 310;
     plane.rel_y= 450;
@@ -55,7 +55,7 @@ int main() {
     setSpriteOnScreen(plane);
 
     //configurando tiro do avião do player
-    Sprite beam;
+    sprite_t beam;
     beam.address = 26;
     beam.rel_x = 310;
     beam.rel_y = 420;
@@ -65,12 +65,12 @@ int main() {
     setSpriteOnScreen(beam);
 
     //obstáculos triangulares entre player e aliens
-    Polygon p;
+    polygon_t p;
     p.address = 0;
     p.rel_x = 450;
     p.rel_y = 350;
     p.size = s40x40;
-    Color p_color = {0, 7, 0};
+    color_t p_color = {0, 7, 0};
     p.color = p_color;
     p.shape = TRIANGLE;
 
@@ -83,7 +83,7 @@ int main() {
     }
 
 
-    Color sky = {0,0,1};
+    color_t sky = {0,0,1};
 
     //executando edição de pixel em memória de sprites
     setPixelOnSpriteMemory(ALIEN_1*400, sky);

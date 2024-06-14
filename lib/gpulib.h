@@ -1,13 +1,13 @@
 #include "datastructures.h"
 
-int setBackground(Color color);
+int setBackground(color_t color);
 
-int setPixelOnSpriteMemory(unsigned int mem_address, Color color);
+int setPixelOnSpriteMemory(unsigned int mem_address, color_t color);
 
-int editBlockOnBackgroundMemory(unsigned int block, Color color);
+int editBlockOnBackgroundMemory(unsigned int block, color_t color);
 
-int setSpriteOnScreen(Sprite sprite);
+int setSpriteOnScreen(sprite_t sprite);
 
-int setPolygon(Polygon polygon);
+int setPolygon(polygon_t polygon);
 
 int eraseBackground();

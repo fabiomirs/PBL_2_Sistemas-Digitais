@@ -23,7 +23,7 @@ typedef enum size { // tamanhos disponíveis para os polígonos da gpu
   s140x140 = 0b1101,
   s150x150 = 0b1110,
   s160x160 = 0b1111
-} Size;
+} polygon_size_t;
 
 typedef enum {
   ENEMY_1,
@@ -57,16 +57,16 @@ typedef struct {
   unsigned char R;
   unsigned char G;
   unsigned char B;
-} Color;
+} color_t;
 
 typedef struct {
   unsigned char address;
-  Size size;
-  Color color;
+  polygon_size_t size;
+  color_t color;
   Shape shape;
   unsigned int rel_x;
   unsigned int rel_y;
-} Polygon;
+} polygon_t;
 
 typedef struct {
   unsigned int address;
@@ -74,6 +74,6 @@ typedef struct {
   unsigned int rel_x;
   unsigned int rel_y;
   unsigned char visible;
-} Sprite;
+} sprite_t;
 
 #endif

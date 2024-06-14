@@ -36,7 +36,7 @@ static struct drvgpu_data{
 //filp é o arquivo associado ao driver, mantem informações sobre o estado do arquivo (se é so leitura ou escrita)
 
 int
-device_open(struct inode *inode,struct file *filp){ 
+deviceOpen(struct inode *inode,struct file *filp){ 
         printk(KERN_INFO "aberto");
         return 0;
 }
@@ -48,7 +48,7 @@ int t;
 
 //filp é uma strcut do tipo file, ela serve como um ''''ponteiro'''' que aponta para qual driver esse arquivo está relacionado
 ssize_t
-device_write(struct file* filp, const unsigned char *bufSourceData, size_t bufCount, loff_t* curOffset){
+deviceWrite(struct file* filp, const unsigned char *bufSourceData, size_t bufCount, loff_t* curOffset){
     int ret;
     unsigned int concat, concat1;
     printk(KERN_INFO "escrevendo");
@@ -82,13 +82,13 @@ device_write(struct file* filp, const unsigned char *bufSourceData, size_t bufCo
 
 
 int
-device_close(struct inode *inode, struct file *filp){
+deviceClose(struct inode *inode, struct file *filp){
         return 0;
 }
 
 //função usado nos testes de passagem de dados
 ssize_t
-device_read(struct file* filp,char *bufDestination, size_t bufCount, loff_t* curOffset){
+deviceRead(struct file* filp,char *bufDestination, size_t bufCount, loff_t* curOffset){
         int ret;
         ret=copy_to_user(bufDestination,data + *curOffset,bufCount); //copiando os dados escritos no kernel para o espaço do usário 
         if (ret != 0) {
@@ -104,10 +104,10 @@ device_read(struct file* filp,char *bufDestination, size_t bufCount, loff_t* cur
 //são ponteiros para as funcoes do dispotivo
 static const struct file_operations fops = {
         .owner=THIS_MODULE,
-        .open = device_open, //aponta para o metodo no momento que abre o dispotivo
-        .release =device_close, //aponta para o metodo no momento que fecha o dispotivo
-        .write = device_write, //aponta para o metodo no momento que deve-se escrever no dispotivo
-        .read = device_read, //aponta para o metodo no momento que deve-se ler o dispotivo
+        .open = deviceOpen, //aponta para o metodo no momento que abre o dispotivo
+        .release = deviceClose, //aponta para o metodo no momento que fecha o dispotivo
+        .write = deviceWrite, //aponta para o metodo no momento que deve-se escrever no dispotivo
+        .read = deviceRead, //aponta para o metodo no momento que deve-se ler o dispotivo
 };
    
 
