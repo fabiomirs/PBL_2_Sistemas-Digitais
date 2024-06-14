@@ -291,7 +291,13 @@ https://resumos.leic.pt/so/memory-management/
 
 https://linux-kernel-labs.github.io/refs/heads/master/labs/device_drivers.html
 
+https://www.sciencedirect.com/science/article/pii/S2090447923003672#f0010
 
+https://people.ece.cornell.edu/land/courses/ece5760/DE1_SOC/HPS_peripherials/FPGA_addr_index.html
+
+https://www.intel.com.br/content/www/br/pt/support/programmable/support-resources/design-examples/horizontal/fpga-to-hps-bridges-design-example.html
+
+https://www.intel.com/content/www/us/en/docs/programmable/683711/21-2/arria-10-hps-fpga-bridges-block-diagram.html
 
 ## Autores
 
