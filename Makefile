@@ -7,6 +7,8 @@ all:
 
 	rm -f /dev/gpu123
 	
+run: gputest
+	sudo ./gputest
 
 program: gputest.o instructions.o gpulib.o
 	gcc -o gputest gputest.o gpulib.o instructions.o
