@@ -14,27 +14,29 @@ void close_physical (int);
 
 char lastRegister = 0;
 
-void printBits(char *palavra) {
+void
+printBits(char *word) {
     int i;
     int j;
     for (i = 7; i >= 0; i--) {
         for (j = 7; j >= 0; j--) {
-            printf("%d", (palavra[i] >> j) & 1);
+            printf("%d", (word[i] >> j) & 1);
         }
         printf(" "); // Espaço a cada byte
     }
     printf("\n");
 }
 
-int writeBitsOnDeviceDriver(unsigned char* bits, char* error_msg){
+int
+writeBitsOnDeviceDriver(unsigned char* bits, char* error_msg){
     int fd;
     if ((fd = open_physical (fd)) == -1)
         return (-1);
 
     ssize_t buffer =  write(fd,bits,8); //escreve buffer de 8 bytes no kernel, com os dados para DATA_A e DATA_B
 
-    unsigned char lendo[8];
-    ssize_t bytesRead=read(fd,lendo,8); //recebe retorno do kernel para verificar se a escrita foi correta
+    unsigned char readData[8];
+    ssize_t bytesRead=read(fd,readData,8); //recebe retorno do kernel para verificar se a escrita foi correta
     if (bytesRead<0) {
         printf("%s", error_msg);
         close_physical (fd);
@@ -48,40 +50,47 @@ int writeBitsOnDeviceDriver(unsigned char* bits, char* error_msg){
 //as funções a seguir formam a palavra da instrução e chamam a função de envio para o kernel.
 //Ao final, retornam se a operação foi concluída com sucesso.
 
-int setBackground(Color color) {
+int
+setBackground(Color color) {
     char *word = assembleInstructionWBR(color.R, color.G, color.B);
     return writeBitsOnDeviceDriver(word, "erro na escrita do background");
    
 }
 
-int setPixelOnSpriteMemory(unsigned int mem_address, Color color) {
+int
+setPixelOnSpriteMemory(unsigned int mem_address, Color color) {
     char* word = assembleInstructionWSM(mem_address, color.R, color.G, color.B);
     return writeBitsOnDeviceDriver(word, "erro na edição de pixel na memória de sprites");
 }
 
-int editBlockOnBackgroundMemory(unsigned int block, Color color) {
+int
+editBlockOnBackgroundMemory(unsigned int block, Color color) {
     unsigned char *word = assembleInstructionWBM(block, color.R, color.G, color.B);
     return writeBitsOnDeviceDriver(word, "erro na edição de bloco na memória de background");
 }
 
-int setSpriteOnScreen(Sprite sprite) {
+int
+setSpriteOnScreen(Sprite sprite) {
     unsigned char *word = assembleInstructionWBR_2(sprite.address, sprite.variation, sprite.rel_y, sprite.rel_x, sprite.visible);
     return writeBitsOnDeviceDriver(word, "erro na escrita de sprite");
 }
 
-int setPolygon(Polygon polygon) {
+int
+setPolygon(Polygon polygon) {
     unsigned char *word = assembleInstructionDP(polygon.rel_x, polygon.rel_y, polygon.address,
     polygon.size, polygon.color.R, polygon.color.G, polygon.color.B, polygon.shape);
     return writeBitsOnDeviceDriver(word, "erro na escrita de polígono");
 }
 
-int eraseBackground() {
+int
+eraseBackground() {
     Color color = {7,7,7};
     return setBackground(color); //apenas pinta a tela de preto
 }
 
 
-int open_physical (int fd) {
+int
+open_physical (int fd) {
     if ((fd = open( "/dev/gpu123", (O_RDWR | O_SYNC))) == -1) { //verifica existência e legibilidade do char device driver
         printf ("ERROR: could not open \"/dev/mem\"...\n");
         return (-1);
@@ -92,7 +101,8 @@ int open_physical (int fd) {
 
 
 
-void close_physical (int fd) {
+void
+close_physical (int fd) {
     close (fd);
 }
 

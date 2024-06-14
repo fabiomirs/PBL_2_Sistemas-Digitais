@@ -1,171 +1,162 @@
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/init.h>
-#include <asm/io.h>
-#include "address_map_arm.h"
-#include <linux/uaccess.h>
-#include <linux/fs.h>
-#include <linux/cdev.h>
-#include <linux/delay.h>
+#include <linux/kernel.h> //para usar funcoes como printk etc
+#include <linux/module.h> //macros de definacao de licensa e autores
+#include <linux/init.h> //usado para iniciar o modulo e finalizar 
+#include <asm/io.h> //para usar o ioremap
+#include "address_map_arm.h" //endereços da ponte
+#include <linux/uaccess.h> //usa as funcoes copy_to_user e copy_from_user
+#include <linux/fs.h> //arquivo de operacoes, que permite uso de funcoes como open/close e read/write para a gpu
+#include <linux/cdev.h> //char driver usa o cdev, usado para registrar o driver no kernel
+#include <linux/delay.h> //necessario para usar o delay para controlar o uso das fifo
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Icaro");
-
+MODULE_AUTHOR("Icaro, Valmir, Fabio e Nalbert");
+MODULE_DESCRIPTION("DRIVER PARA GPU");
 //CONSTANTES
-#define DATA_A  0x80
-#define DATA_B  0x70
-#define START 0xc0
-#define WR_FULL 0xb0
+#define DATA_A  0x80 //endereço do FIFO de instrucoes
+#define DATA_B  0x70 //endereço do FIFO de dados
+#define START 0xc0 //endereço do sinal para ''confirmar'' o envio de dados
+#define WR_FULL 0xb0 //endereço do sinal que dirá se a fifo ta cheia
 
-#define DRIVER_NAME "gpu123"
+#define DRIVER_NAME "gpu123" //nome
 
-static unsigned char data[8]; 
+static unsigned char data[8];  //Buffer que guardará os dados que serão passados para GPU
 
-void * LW_virtual; // Lightweight bridge base address
-volatile int *DATA_A_PTR, *DATA_B_PTR, *START_PTR, *WR_FULL_PTR; // virtual addresses
-
-
-
-static struct drvled_data{
-    dev_t devnum;
-    struct cdev cdev;
-} drvled_data;
+void * LW_virtual; // Endereço base da ponte Lightweight 
+volatile int *DATA_A_PTR, *DATA_B_PTR, *START_PTR, *WR_FULL_PTR; // "endereços virtuais"
 
 
+//struct que guarda o major e minor number do driver
+static struct drvgpu_data{
+    dev_t devnum; //guardará o major number retornado pelo kernel
+    struct cdev cdev; //usado para representar o driver de caracteres
+} drvgpu_data;
 
 
-int major_number;
+//inode é usado para salvar os metadados do arquivo (se ele faz operacoes de leitura e escrita), fornece informacoes sobre o dispositivo acessado
+//filp é o arquivo associado ao driver, mantem informações sobre o estado do arquivo (se é so leitura ou escrita)
 
-void print_binary(unsigned int num) {
-    int i;
-    printk(KERN_INFO "Valor em binário: ");
-    for (i = sizeof(num) * 8 - 1; i >= 0; i--) {
-        printk(KERN_CONT "%d", (num >> i) & 1);
-        if (i % 4 == 0) printk(KERN_CONT " "); // Adiciona um espaço a cada 4 bits para facilitar a leitura
-    }
-    printk(KERN_CONT "\n");
-}
-
-
-
-int device_open(struct inode *inode,struct file *filp){
+int
+device_open(struct inode *inode,struct file *filp){ 
         printk(KERN_INFO "aberto");
         return 0;
 }
 
 
-
-
-
-
 int ret;
 
 int t;
-ssize_t device_write(struct file* filp, const unsigned char *bufSourceData, size_t bufCount, loff_t* curOffset){
+
+//filp é uma strcut do tipo file, ela serve como um ''''ponteiro'''' que aponta para qual driver esse arquivo está relacionado
+ssize_t
+device_write(struct file* filp, const unsigned char *bufSourceData, size_t bufCount, loff_t* curOffset){
     int ret;
     unsigned int concat, concat1;
     printk(KERN_INFO "escrevendo");
-    ret = copy_from_user(data, bufSourceData, bufCount);
+
+    //copia do espaço do usário para o buffer do driver
+    ret = copy_from_user(data, bufSourceData, bufCount);//primeiro parametro é o buffer do driver, segundo é o buffer do lado do usário e o terceiro o tamanho do buffer(usuario)
     if (ret != 0) {
-        printk(KERN_ERR "Failed to copy data from user space\n");
-        return -EFAULT; // Error code for bad address
+        printk(KERN_ERR "Falhou na cópia de dados do espaço do usuário\n");
+        return -EFAULT; 
     }
 
-    int i;
-    printk(KERN_INFO "Valores em data:\n");
-    for (i = 0; i < 8; i++) {
-        printk(KERN_INFO "%u ", data[i]);
-    }
-    printk(KERN_INFO "\n");
-    printk(KERN_INFO "\n");
-
-
-    while(*WR_FULL_PTR){
-        msleep(10);
-        if(*WR_FULL_PTR == 0)
+    //lógica utilizada para evitar perca de dados quando a fifo está cheia
+    while(*WR_FULL_PTR){ //enquanto a fifo estiver cheia continue no loop
+        msleep(10);     //dê um tempo para esvaziar
+        if(*WR_FULL_PTR == 0)// se a fifo estiver vazia, saia do while loop
           break;
     }
-    printk(KERN_INFO "oioi");
 
-    concat = data[7] << 24 | data[6] << 16 | data[5] << 8 | data[4];//c>
-    concat1 = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0];//>
+    concat = data[7] << 24 | data[6] << 16 | data[5] << 8 | data[4];//pegando os ultimo valores do buffer e deslocando para criar uma palavra de dados 32 bits
+    concat1 = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0];//pegando os primeiros valores do buffer e deslocando para formar uma palavra de instrucao de 32 bits
 
-    print_binary(concat1);
-    print_binary(concat);
 
-    *START_PTR = 0;
-    *DATA_A_PTR = concat1;
-    *DATA_B_PTR = concat;
-    *START_PTR = 1;
+    *START_PTR = 0; //sinal antes de escrever
+    *DATA_A_PTR = concat1; //passando os valores para a Fifo de instrucoes
+    *DATA_B_PTR = concat; // passando os valores para fifo de dados
+    *START_PTR = 1; //habilitando o envio dos dados da fifo pro processador gráfico
 
-    return bufCount;
+    return bufCount; //retornando o tamanho do buffer que foi mandado
 }
 
 
 
-int device_close(struct inode *inode, struct file *filp){
-       // up(&virtual_device.sem);
+int
+device_close(struct inode *inode, struct file *filp){
         return 0;
-
-
 }
 
-
-ssize_t device_read(struct file* filp,char *bufDestination, size_t bufCount, loff_t* curOffset){
+//função usado nos testes de passagem de dados
+ssize_t
+device_read(struct file* filp,char *bufDestination, size_t bufCount, loff_t* curOffset){
         int ret;
-        printk(KERN_INFO "LENDO DISPOTIVO");
-
-
-        ret=copy_to_user(bufDestination,data + *curOffset,bufCount);
+        ret=copy_to_user(bufDestination,data + *curOffset,bufCount); //copiando os dados escritos no kernel para o espaço do usário 
         if (ret != 0) {
-                printk(KERN_ERR "Failed to copy data para o espaco de usuarioe\n");
-                return -EFAULT; // Error code for bad address
-    }
+                printk(KERN_ERR "Falhou na coía de dados para o espaco de usuario\n");
+                return -EFAULT; // 
+        }
         printk(KERN_INFO "lendo");
         return bufCount;
 }
 
 
+//struct do tipo file_operations define que tipo de operacoes podem ser feitas no dispotivo
+//são ponteiros para as funcoes do dispotivo
 static const struct file_operations fops = {
         .owner=THIS_MODULE,
-        .open = device_open,
-        .release =device_close,
-        .write = device_write,
-        .read = device_read,
+        .open = device_open, //aponta para o metodo no momento que abre o dispotivo
+        .release =device_close, //aponta para o metodo no momento que fecha o dispotivo
+        .write = device_write, //aponta para o metodo no momento que deve-se escrever no dispotivo
+        .read = device_read, //aponta para o metodo no momento que deve-se ler o dispotivo
 };
    
 
-static int __init init_kernelgpudriver(void) {
+static int __init
+init_kernelgpudriver(void) {
 
 
     int result;
 
 
+    //alocando um ''major number'' para associar posteriormente com um arquivo de dispositivo
+
+    //devnum vai guardar o major number que vai ser usado para adicionar o driver no sistema
+    //o segundo parametro ''0'' é o minor number, usado para dinstiguir drivers com o msm major number, usado também no momento de criação do node 
+    //numero de minor number ligado ao dispotivo, só 1
+    result = alloc_chrdev_region(&drvgpu_data.devnum, 0, 1, DRIVER_NAME); 
 
 
-//     uint16_t buffer1, buffer2;
-    result = alloc_chrdev_region(&drvled_data.devnum, 0, 1, DRIVER_NAME);
     if (result) {
-    pr_err("%s: Failed to allocate device number!\n", DRIVER_NAME);
-    return result;
-    }
-   // major_number = MAJOR(&drvled_data.devnum);
-   // printk(KERN_INFO "major number %d",major_number);
-    cdev_init(&drvled_data.cdev, &fops);
-
-
-    result = cdev_add(&drvled_data.cdev, drvled_data.devnum, 1);
-    if (result) {
-    pr_err("%s: Char device registration failed!\n", DRIVER_NAME);
-    unregister_chrdev_region(drvled_data.devnum, 1);
-    return result;
+        pr_err("%s: Não foi possível alocar um numero para o driver!\n", DRIVER_NAME);//verificando se deu tudo certo
+        return result;
     }
 
 
-    //drvled_setled(LED_OFF);
-   
+    //inicializando o char driver, configurando esse tipo cdev(char driver) para operações de leitura e escrita (e outras) com o dispositivo
+
+    // primeiro argumento é a estrutura básica para char drivers, está sendo inicializada
+    //segundo é um ponteiro para uma struct ''file operations'', que define o que pode ser feito no dispotivo
+    cdev_init(&drvgpu_data.cdev, &fops);
+
+
+
+    //adicionando o char driver ao sistema de dispositivos do tipo char, no kernel 
+
+    //primeiro argumento é a estrura cdev (que representa o driver)
+    //segundo é o que contem o major e minor number
+    //ultimo argumento o numero de dispositivos sendo registrados
+    result = cdev_add(&drvgpu_data.cdev, drvgpu_data.devnum, 1);
+
+    if (result) {
+        pr_err("%s: Falha no registro do driver de caracters\n", DRIVER_NAME);//verificando se o registro teve sucesso
+        unregister_chrdev_region(drvgpu_data.devnum, 1);
+        return result;
+    }
+
+    //mapeando memória física em memoria virtual para protecao 
     LW_virtual = ioremap_nocache (LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
     
+    //endereços para acesso de fifos e sinais de controle 
     DATA_A_PTR = (unsigned int *) (LW_virtual + DATA_A);
     DATA_B_PTR = (unsigned int *) (LW_virtual + DATA_B);  
     START_PTR = (unsigned int *) (LW_virtual + START);  
@@ -175,24 +166,21 @@ static int __init init_kernelgpudriver(void) {
     pr_info("%s: initialized.\n", DRIVER_NAME);
 
 
-
-
    return 0;
 }
 
 
-static void __exit exit_kernelgpudriver(void) {
+static void __exit
+exit_kernelgpudriver(void) {
    *START_PTR = 0;
-    iounmap (LW_virtual);
-    cdev_del(&drvled_data.cdev);
-    unregister_chrdev_region(drvled_data.devnum, 1);
+    iounmap (LW_virtual); //''desmapeando''
+    cdev_del(&drvgpu_data.cdev);//deletando a representacao do driver
+    unregister_chrdev_region(drvgpu_data.devnum, 1); //excluindo os major e minor number
     pr_info("%s: exiting.\n", DRIVER_NAME);
 }
 
 
 module_init(init_kernelgpudriver);
 module_exit(exit_kernelgpudriver);
-
-
 
 

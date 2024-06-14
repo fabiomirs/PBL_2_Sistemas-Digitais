@@ -4,8 +4,7 @@
 #include <stdlib.h>
 
 int main() {
-    // Color color = {0b000, 0b111, 0b000};
-    // setBackground(color);
+    //criando modelo de sprite do alien a ser replicado
     Sprite sprite;
     sprite.address = 1;
     sprite.rel_x= 150;
@@ -13,42 +12,39 @@ int main() {
     sprite.variation = ALIEN_1;
     sprite.visible = 1;
 
-    int i, j;
+    int i;
 
-    
-    
-    // for(i = 0; i <= 32; i++){
-    //     sprite.address = i;
-    //     sprite.visible = 0;
-    //     setSpriteOnScreen(sprite);
-    // }
-
-    sprite.address = 1;
-    sprite.visible = 1;
-    sprite.rel_x= 150;
+    //imprimindo 1° fileira de aliens
     for(i = 0; i< 8; i++){
         setSpriteOnScreen(sprite);
         sprite.address++;
         sprite.rel_x +=40;
     }
+
+    //imprimindo 2° fileira de aliens
     sprite.rel_y += 40;
     sprite.rel_x= 150;
-    for(i = 0; i< 8; i++){
-        setSpriteOnScreen(sprite);
-        sprite.address++;
-        sprite.rel_x += 40;
-    }
-    sprite.rel_y += 40;
-    sprite.rel_x= 150;
+
     for(i = 0; i< 8; i++){
         setSpriteOnScreen(sprite);
         sprite.address++;
         sprite.rel_x += 40;
     }
 
-    Color star = {7,7,7};
+    //imprimindo 3° fileira de aliens
+    sprite.rel_y += 40;
+    sprite.rel_x= 150;
 
-    setPixelOnSpriteMemory(25*400, star);
+    for(i = 0; i< 8; i++){
+        setSpriteOnScreen(sprite);
+        sprite.address++;
+        sprite.rel_x += 40;
+    }
+
+    Color star = {7,7,7}; //cor das estrelas (blocos de background a serem editados)
+    
+    
+    //configurando avião do player
     Sprite plane;
     plane.address = 27;
     plane.rel_x= 310;
@@ -58,6 +54,7 @@ int main() {
 
     setSpriteOnScreen(plane);
 
+    //configurando tiro do avião do player
     Sprite beam;
     beam.address = 26;
     beam.rel_x = 310;
@@ -67,13 +64,14 @@ int main() {
 
     setSpriteOnScreen(beam);
 
+    //obstáculos triangulares entre player e aliens
     Polygon p;
     p.address = 0;
     p.rel_x = 450;
     p.rel_y = 350;
     p.size = s40x40;
-    Color pColor = {0, 7, 0};
-    p.color = pColor;
+    Color p_color = {0, 7, 0};
+    p.color = p_color;
     p.shape = TRIANGLE;
 
     setPolygon(p);
@@ -85,12 +83,13 @@ int main() {
     }
 
 
-    srand(time(NULL));
-
     Color sky = {0,0,1};
 
+    //executando edição de pixel em memória de sprites
     setPixelOnSpriteMemory(ALIEN_1*400, sky);
     
+    //algoritmo de aleatorização das estrelas no background
+    srand(time(NULL));
     for(i = 0; i < 4800; i++)
         editBlockOnBackgroundMemory(i, sky);
 

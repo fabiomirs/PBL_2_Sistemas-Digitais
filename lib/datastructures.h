@@ -1,12 +1,6 @@
 #ifndef DATASTRUCTURES_H
 #define DATASTRUCTURES_H
 
-typedef enum {
-  BACKGROUND,
-  SPRITE,
-  POLYGON
-} GraphicElementType;
-
 typedef enum { // para definição do formato dos polígonos 
   SQUARE   = 0,
   TRIANGLE = 1
@@ -57,7 +51,7 @@ typedef enum {
   ALIEN_2,
   ROCK,
   TROPHY
-} SpriteVariation;
+} sprite_variation_t;
 
 typedef struct {
   unsigned char R;
@@ -76,18 +70,10 @@ typedef struct {
 
 typedef struct {
   unsigned int address;
-  unsigned char variation;
+  sprite_variation_t variation;
   unsigned int rel_x;
   unsigned int rel_y;
   unsigned char visible;
 } Sprite;
-
-typedef struct {
-  GraphicElementType type;
-  union {
-    Polygon* p;
-    Sprite* s;
-  } data;
-} GraphicElement;
 
 #endif
